@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">MidtermProject</string>
+
+    <string name="coffee_1">Americano</string>
+    <string name="coffee_2">Cappuchino</string>
+    <string name="coffee_3">Mocha</string>
+    <string name="coffee_4">Flat White</string>
+    <string name="coffee_5">Espresso</string>
+    <string name="coffee_6">Latte</string>
+    <string name="coffee_0">Error</string>
 </resources>

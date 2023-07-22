@@ -1,5 +1,6 @@
 package com.example.midtermproject
 
+import android.content.res.Resources
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -8,13 +9,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -27,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -34,7 +40,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
 import com.example.midtermproject.ui.theme.MidtermProjectTheme
 
 class MainActivity : ComponentActivity() {
@@ -220,6 +225,94 @@ fun HomeScreen(modifier: Modifier = Modifier, username : String = "Guest", cnum 
                 }
             }
         }
+        // Coffee list
+        Column (
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.Top,
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    color = Color(0xFF324A59),
+                    shape = RoundedCornerShape(
+                        topStart = 25.dp,
+                        topEnd = 25.dp,
+                        bottomEnd = 0.dp,
+                        bottomStart = 0.dp
+                    )
+                ))
+        {
+            Text(
+                text = "Choose your coffee",
+                style = TextStyle(
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFFD8D8D8),),
+                modifier = Modifier
+                    .padding(start = 24.dp, top = 18.dp)
+                )
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(minSize = 154.dp),
+                horizontalArrangement = Arrangement.spacedBy(24.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(start = 24.dp, top = 24.dp,end = 24.dp, bottom = 0.dp))
+            {
+                items(6) { index ->
+                    Button(
+                        onClick = {
+                            //Go to detail
+                        },
+                        shape = RoundedCornerShape(15.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF7F8FB)),
+                        modifier = Modifier
+                            .width(154.dp)
+                            .height(154.dp))
+                    {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier
+                                .fillMaxSize())
+                        {
+                            ButtonContent(index = index + 1)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ButtonContent(index: Int)
+{
+    val context = LocalContext.current
+    var resId = context.resources.getIdentifier("coffee_$index", "drawable", context.packageName)
+    val drawableId = if (resId != 0) resId else R.drawable.coffee_icon_0
+    resId = context.resources.getIdentifier("coffee_$index", "string", context.packageName)
+    val stringID = if (resId != 0) resId else R.string.coffee_0
+    Image(
+        painter = painterResource(id = drawableId),
+        contentDescription = "Drink $index",
+        modifier = Modifier
+            .width(114.dp)
+            .height(85.dp))
+    Text(
+        text = context.resources.getString(stringID),
+        style = TextStyle(
+            fontSize = 14.sp,
+            lineHeight = 20.sp,
+            fontWeight = FontWeight.Medium,
+            color = Color.Black,
+        ))
+}
+@Preview
+@Composable
+fun ButtonContentPreview()
+{
+    MidtermProjectTheme {
+        ButtonContent(index = 1)
     }
 }
 
