@@ -3,12 +3,17 @@ package com.example.midtermproject
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.AnchoredDraggableState
+import androidx.compose.foundation.gestures.DraggableAnchors
+import androidx.compose.foundation.gestures.anchoredDraggable
+import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement.Center
+import androidx.compose.foundation.layout.Arrangement.End
+import androidx.compose.foundation.layout.Arrangement.Start
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -17,14 +22,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ButtonElevation
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -32,21 +37,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstrainedLayoutReference
+import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.midtermproject.ui.theme.MidtermProjectTheme
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.text.style.TextAlign
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -278,6 +286,15 @@ class Coffee(index: Int, quantity: Int, shot: Boolean, select: Boolean, size: Tr
             Tristate.LARGE -> 1.75f}
         return 3 * x * (if(shot) 2 else 1) * quantity
     }
+
+    override fun toString() : String
+    {
+        val sh = if(shot) "double" else "single"
+        val se = if(select) "iced" else "hot"
+        val si = if(size == Tristate.SMALL) "small" else if(size == Tristate.MEDIUM) "medium" else "large"
+        val ic = if(ice == Tristate.SMALL) "less ice" else if(ice == Tristate.MEDIUM) "half ice" else "full ice"
+        return sh + " | " + se + " | " + si + if(select) " | $ic" else ""
+    }
 }
 
 @Preview
@@ -468,7 +485,7 @@ fun DetailScreen(index : Int)
                     modifier = Modifier
                         .border(
                             width = 1.2.dp,
-                            color = if(shot) Color(0x66D8D8D8) else Color.Black,
+                            color = if (shot) Color(0x66D8D8D8) else Color.Black,
                             shape = RoundedCornerShape(size = 50.dp)
                         )
                         .height(40.dp),)
@@ -489,7 +506,7 @@ fun DetailScreen(index : Int)
                     modifier = Modifier
                         .border(
                             width = 1.2.dp,
-                            color = if(!shot) Color(0x66D8D8D8) else Color.Black,
+                            color = if (!shot) Color(0x66D8D8D8) else Color.Black,
                             shape = RoundedCornerShape(size = 50.dp)
                         )
                         .height(40.dp),)
@@ -643,75 +660,79 @@ fun DetailScreen(index : Int)
         }
 
         // Ice
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(15.dp))
+        if(select)
         {
-            Text(
-                text = "Ice",
-                style = TextStyle(
-                    fontSize = 14.sp,
-                    lineHeight = 20.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color.Black,))
+
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
+                horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
-                    .height(60.dp)
-            )
+                    .fillMaxWidth()
+                    .padding(15.dp))
             {
-                Button(
-                    onClick = { ice = Tristate.SMALL },
-                    shape = RectangleShape,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                Text(
+                    text = "Ice",
+                    style = TextStyle(
+                        fontSize = 14.sp,
+                        lineHeight = 20.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Black,))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
                     modifier = Modifier
-                        .fillMaxHeight())
-                {
-                    Image(
-                        painter = painterResource(id = R.drawable.ice),
-                        contentDescription = "Here icon",
-                        alpha = if(ice == Tristate.SMALL) 1f else 0.2f,
-                        modifier = Modifier
-                            .width(17.dp)
-                            .height(22.dp)
-                    )
-                }
-
-                Button(
-                    onClick = { ice = Tristate.MEDIUM },
-                    shape = RectangleShape,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                    modifier = Modifier
-                        .fillMaxHeight())
-                {
-                    Image(
-                        painter = painterResource(id = R.drawable.ice),
-                        contentDescription = "Here icon",
-                        alpha = if(ice == Tristate.MEDIUM) 1f else 0.2f,
-                        modifier = Modifier
-                            .width(24.dp)
-                            .height(31.dp))
-                }
-
-                Button(
-                    onClick = { ice = Tristate.LARGE },
-                    shape = RectangleShape,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                    modifier = Modifier
-                        .fillMaxHeight()
+                        .height(60.dp)
                 )
                 {
-                    Image(
-                        painter = painterResource(id = R.drawable.ice),
-                        contentDescription = "Here icon",
-                        alpha = if(ice == Tristate.LARGE) 1f else 0.2f,
+                    Button(
+                        onClick = { ice = Tristate.SMALL },
+                        shape = RectangleShape,
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                         modifier = Modifier
-                            .width(29.dp)
-                            .height(38.dp))
+                            .fillMaxHeight())
+                    {
+                        Image(
+                            painter = painterResource(id = R.drawable.ice),
+                            contentDescription = "Here icon",
+                            alpha = if(ice == Tristate.SMALL) 1f else 0.2f,
+                            modifier = Modifier
+                                .width(17.dp)
+                                .height(22.dp)
+                        )
+                    }
+
+                    Button(
+                        onClick = { ice = Tristate.MEDIUM },
+                        shape = RectangleShape,
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                        modifier = Modifier
+                            .fillMaxHeight())
+                    {
+                        Image(
+                            painter = painterResource(id = R.drawable.ice),
+                            contentDescription = "Here icon",
+                            alpha = if(ice == Tristate.MEDIUM) 1f else 0.2f,
+                            modifier = Modifier
+                                .width(24.dp)
+                                .height(31.dp))
+                    }
+
+                    Button(
+                        onClick = { ice = Tristate.LARGE },
+                        shape = RectangleShape,
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                        modifier = Modifier
+                            .fillMaxHeight()
+                    )
+                    {
+                        Image(
+                            painter = painterResource(id = R.drawable.ice),
+                            contentDescription = "Here icon",
+                            alpha = if(ice == Tristate.LARGE) 1f else 0.2f,
+                            modifier = Modifier
+                                .width(29.dp)
+                                .height(38.dp))
+                    }
                 }
             }
         }
@@ -771,6 +792,246 @@ fun DetailPreview() {
         DetailScreen(1)
     }
 }
+
+@Composable
+fun Cart(clist: List<Coffee>)
+{
+    val header = ConstrainedLayoutReference(id = "header")
+    val caption = ConstrainedLayoutReference(id = "caption")
+    val list = ConstrainedLayoutReference(id = "list")
+    val checkOut = ConstrainedLayoutReference(id = "check_out")
+
+    ConstraintLayout(
+        modifier = Modifier
+            .layoutId("cart_main")
+            .fillMaxSize()
+    )
+    {
+        // header
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start,
+            modifier = Modifier
+                .fillMaxWidth()
+                .constrainAs(header) {
+                    top.linkTo(parent.top, margin = 16.dp)
+                })
+        {
+            Button(
+                onClick = { //To Profile
+                },
+                shape = CircleShape,
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent))
+            {
+                Image(
+                    painter = painterResource(id = R.drawable.back),
+                    contentDescription = "Back icon",
+                    modifier = Modifier
+                        .width(26.dp)
+                        .height(26.dp))
+            }
+        }
+
+        Text(
+            text = "My Cart",
+            style = TextStyle(
+                fontSize = 20.sp,
+                lineHeight = 24.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.Black,
+                textAlign = TextAlign.Start,),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp)
+                .constrainAs(caption) {
+                    top.linkTo(header.bottom)
+                })
+
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(24.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .constrainAs(list) {
+                    top.linkTo(caption.bottom)
+                    bottom.linkTo(checkOut.top, margin = 16.dp)
+                })
+        {
+            items(clist.size){i ->
+                // Display coffee
+                DisplayCoffee(coffee = clist[i])
+            }
+        }
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+                .constrainAs(checkOut) {
+                    bottom.linkTo(parent.bottom, margin = 16.dp)
+                }
+        )
+        {
+            Column(
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.Center
+            )
+            {
+                Text(
+                    text = "Total Price",
+                    style = TextStyle(
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color(0x38001833),
+                    )
+                )
+                Text(
+                    text = "$${totalPrice(clist)}",
+                    style = TextStyle(
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight(600),
+                        color = Color(0xFF001833),
+                    )
+                )
+            }
+
+            Button(
+                onClick = {
+
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF324A59)),
+                modifier = Modifier
+                    .width(162.dp)
+                    .height(52.dp)
+                    .background(color = Color(0xFF324A59), shape = RoundedCornerShape(size = 30.dp))
+            )
+            {
+                Image(
+                    painter = painterResource(id = R.drawable.cart),
+                    contentDescription = "image description",
+                    modifier = Modifier
+                        .padding(1.dp)
+                        .width(24.dp)
+                        .height(24.dp),
+                    alpha = 0.1f)
+
+                Text(
+                    text = "Checkout",
+                    style = TextStyle(
+                        fontSize = 14.sp,
+                        lineHeight = 23.sp,
+                        fontWeight = FontWeight(600),
+                        color = Color.White,
+                        textAlign = TextAlign.Center,))
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun CartPreview(){
+    MidtermProjectTheme {
+        Cart(List<Coffee>(1){Coffee(1, 1, false, false, Tristate.MEDIUM, Tristate.MEDIUM)})
+    }
+}
+
+@Composable
+fun DisplayCoffee(coffee : Coffee)
+{
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        userScrollEnabled = false,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(100.dp)
+
+    )
+    {
+        item()
+        {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier
+                    .width(LocalConfiguration.current.screenWidthDp.dp)
+                    .height(96.dp)
+                    .background(color = Color(0xFFF7F8FB), shape = RoundedCornerShape(size = 15.dp))
+            )
+            {
+                CoffeeImage(index = coffee.index, modifier = Modifier
+                    .width(82.dp)
+                    .height(61.dp))
+
+                Column(
+                    horizontalAlignment = Alignment.Start,
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillParentMaxHeight())
+                {
+                    CoffeeText(index = coffee.index)
+
+                    Text(
+                        text = coffee.toString(),
+                        style = TextStyle(
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight(300),
+                            color = Color(0xFF757575),)
+                    )
+
+                    Text(
+                        text = "x ${coffee.quantity}",
+                        style = TextStyle(
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight(600),
+                            color = Color(0x91000000),
+                        )
+                    )
+                }
+                Text(
+                    text = "$${coffee.calCost()}",
+                    style = TextStyle(
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Black,
+                    )
+                )
+            }
+
+            Button(
+                onClick = {
+
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFE5E5)),
+                shape = RoundedCornerShape(size = 15.dp),
+                modifier = Modifier
+                    .height(96.dp)
+            )
+            {
+                Image(
+                    painter = painterResource(id = R.drawable.delete),
+                    contentDescription = "image description",
+                    modifier = Modifier
+                        .padding(1.dp)
+                        .width(24.dp)
+                        .height(24.dp)
+                )
+            }
+        }
+    }
+}
+
+fun totalPrice(clist : List<Coffee>) : Float
+{
+    var sum = 0f
+    for(coffee in clist)
+    {
+        sum += coffee.calCost()
+    }
+    return sum
+}
+
+
 
 @Composable
 fun CoffeeImage(index: Int, modifier: Modifier)
