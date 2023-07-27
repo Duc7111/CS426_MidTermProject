@@ -102,66 +102,7 @@ fun HomeScreen(modifier: Modifier = Modifier, username : String = "Guest", cnum 
             }
         }
         //Loyalty card
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 10.dp)
-                .background(color = Color(0xFF324A59), shape = RoundedCornerShape(12.dp)))
-        {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp))
-            {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 24.dp, vertical = 10.dp))
-                {
-                    Text(
-                        text = "Loyalty card",
-                        style = TextStyle(
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Color(0xFFD8D8D8)
-                        ),)
-                    Text(
-                        text = "$cnum /8",
-                        style = TextStyle(
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Color(0xFFD8D8D8)
-                        ),)
-                }
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 10.dp)
-                        .background(color = Color.White, shape = RoundedCornerShape(12.dp)))
-                {
-                    for(i : Int in 1..8)
-                        Image(
-                            painter = if(i <= cnum)
-                                painterResource(id = R.drawable.coffee_icon_1)
-                            else
-                                painterResource(id = R.drawable.coffee_icon_0),
-                            contentDescription = "Coffee Icon",
-                            modifier = Modifier
-                                .padding(vertical = 20.dp, horizontal = 0.dp)
-                                .width(30.dp)
-                                .height(30.dp))
-
-                }
-            }
-        }
+        LoyaltyCard(cnum = cnum)
         // Coffee list
         Column (
             horizontalAlignment = Alignment.Start,
