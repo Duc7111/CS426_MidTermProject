@@ -24,11 +24,19 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 
 const val pts : Int = 12
+
+@Preview
+@Composable
+fun RewardsPreview()
+{
+    Rewards(user = User("Adam", "1234", "sth", "sth"))
+}
 
 @Composable
 fun Rewards(user: User)
@@ -37,15 +45,15 @@ fun Rewards(user: User)
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp))
+            .fillMaxSize())
     {
         // Header
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier
-                .fillMaxWidth())
+                .fillMaxWidth()
+                .padding(10.dp))
         {
             Text(
                 text = "Rewards",
@@ -71,7 +79,9 @@ fun Rewards(user: User)
         {
             Column(
                 horizontalAlignment = Alignment.Start,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .padding(10.dp)
             )
             {
                 Text(
@@ -80,9 +90,7 @@ fun Rewards(user: User)
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color(0xFFD8D8D8),),
-                    modifier = Modifier
-                        .width(71.dp)
-                        .height(21.dp))
+                    modifier = Modifier)
 
                 Text(
                     text = "${user.point}",
@@ -90,9 +98,7 @@ fun Rewards(user: User)
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color(0xFFD8D8D8),),
-                    modifier = Modifier
-                        .width(58.dp)
-                        .height(36.dp))
+                    modifier = Modifier)
             }
 
             Button(
@@ -100,8 +106,10 @@ fun Rewards(user: User)
 
                 },
                 shape = RoundedCornerShape(10.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFA2CDE9)),
-            )
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFA2CDE9),),
+                modifier = Modifier
+                    .padding(16.dp)
+                )
             {
                 Text(
                     text = "Redeem drinks",
@@ -119,7 +127,7 @@ fun Rewards(user: User)
             horizontalArrangement = Arrangement.Start,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 10.dp))
+                .padding(start = 30.dp))
         {
             Text(
                 text = "History Rewards",
