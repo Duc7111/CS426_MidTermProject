@@ -32,22 +32,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.midtermproject.ui.theme.MidtermProjectTheme
 
 
 @Composable
-fun DetailScreen(index : Int)
+fun DetailScreen(dao: DBDao, username: String, coffee: Coffee)
 {
     var quantity by remember { mutableStateOf(1) }
     var shot by remember { mutableStateOf(false) }
     var select by remember { mutableStateOf(false) }
     var size by remember { mutableStateOf(Tristate.SMALL) }
     var ice by remember { mutableStateOf(Tristate.SMALL) }
-
-    val coffee = Coffee(index, quantity, shot, select, size, ice)
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -114,7 +110,7 @@ fun DetailScreen(index : Int)
                 .background(color = Color(0xFFF7F8FB), shape = RoundedCornerShape(size = 12.dp)))
         {
             CoffeeImage(
-                index = index,
+                coffee.drawableName,
                 modifier = Modifier
                     .width(172.dp)
                     .height(128.dp))
@@ -127,7 +123,14 @@ fun DetailScreen(index : Int)
                 .fillMaxWidth()
                 .padding(15.dp))
         {
-            CoffeeText(index = index)
+            Text(
+                text = coffee.name,
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.Black,))
+
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
@@ -471,6 +474,10 @@ fun DetailScreen(index : Int)
                 }
             }
         }
+        val order = Order(
+            orderID = 0,
+            username = username,
+            coffeeName = coffee.name,)
 
         // Check
         Row(
@@ -489,7 +496,7 @@ fun DetailScreen(index : Int)
                 )
             )
             Text(
-                text = "$${coffee.calCost()}",
+                text = "$${order.calCost()}",
                 style = TextStyle(
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
@@ -499,7 +506,9 @@ fun DetailScreen(index : Int)
         }
 
         Button(
-            onClick = {},
+            onClick = {
+
+            },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF324A59)),
             modifier = Modifier
                 .fillMaxWidth()
@@ -521,94 +530,5 @@ fun DetailScreen(index : Int)
     }
 }
 
-@Preview
-@Composable
-fun DetailPreview() {
-    MidtermProjectTheme {
-        DetailScreen(1)
-    }
-}
 
-@Composable
-fun DisplayCoffee(coffee : Coffee)
-{
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        userScrollEnabled = false,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(100.dp)
 
-    )
-    {
-        item()
-        {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                modifier = Modifier
-                    .width(LocalConfiguration.current.screenWidthDp.dp)
-                    .height(96.dp)
-                    .background(color = Color(0xFFF7F8FB), shape = RoundedCornerShape(size = 15.dp))
-            )
-            {
-                CoffeeImage(index = coffee.index, modifier = Modifier
-                    .width(82.dp)
-                    .height(61.dp))
-
-                Column(
-                    horizontalAlignment = Alignment.Start,
-                    verticalArrangement = Arrangement.Center,
-                    modifier = Modifier.fillParentMaxHeight())
-                {
-                    CoffeeText(index = coffee.index)
-
-                    Text(
-                        text = coffee.toString(),
-                        style = TextStyle(
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight(300),
-                            color = Color(0xFF757575),)
-                    )
-
-                    Text(
-                        text = "x ${coffee.quantity}",
-                        style = TextStyle(
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight(600),
-                            color = Color(0x91000000),
-                        )
-                    )
-                }
-                Text(
-                    text = "$${coffee.calCost()}",
-                    style = TextStyle(
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = Color.Black,
-                    )
-                )
-            }
-
-            Button(
-                onClick = {
-
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFE5E5)),
-                shape = RoundedCornerShape(size = 15.dp),
-                modifier = Modifier
-                    .height(96.dp)
-            )
-            {
-                Image(
-                    painter = painterResource(id = R.drawable.delete),
-                    contentDescription = "Delete",
-                    modifier = Modifier
-                        .padding(1.dp)
-                        .width(24.dp)
-                        .height(24.dp)
-                )
-            }
-        }
-    }
-}

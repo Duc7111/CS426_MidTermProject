@@ -31,20 +31,19 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-@Preview
 @Composable
-fun ProfilePreview()
+fun Profile(ad: AsynchronousData,username: String)
 {
-    Profile(User("Adam", "1234", "sth", "sth"))
-}
+    var user by remember { mutableStateOf(User()) }
+    ad.getUser(username) { user = it }
+    var name =  user.name
+    var phone = user.phone
+    var email = user.email
+    var address = user.address
 
-@Composable
-fun Profile(user: User)
-{
     Column(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment =  Alignment.CenterHorizontally,
@@ -66,26 +65,29 @@ fun Profile(user: User)
 
         ProfileRow(rowName = "Full name", string = user.name)
         {
-            user.name = it
+            name = it
         }
 
         ProfileRow(rowName = "Phone", string = user.phone)
         {
-            user.phone = it
+            phone = it
         }
 
         ProfileRow(rowName = "Email", string = user.email)
         {
-            user.email = it
+            email = it
         }
 
         ProfileRow(rowName = "address", string = user.address)
         {
-            user.address = it
+            address = it
         }
 
         Button(
-            onClick = {},
+            onClick = {
+                ad.updateUser(username, name, phone, email, address)
+                return@Button
+            },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF324A59)),
             shape = RoundedCornerShape(size = 30.dp),
             modifier = Modifier
@@ -134,6 +136,7 @@ fun ProfileRow(rowName: String, string: String, onTextChange : (String) -> Unit)
             onValueChange = {
                 str = it
                 edited = true
+                onTextChange(it)
             },
             label = {
                 Text(

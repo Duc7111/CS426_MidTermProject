@@ -25,15 +25,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstrainedLayoutReference
 import androidx.constraintlayout.compose.ConstraintLayout
-import com.example.midtermproject.ui.theme.MidtermProjectTheme
 
 @Composable
-fun Cart(clist: List<Coffee>)
+fun Cart(ad: AsynchronousData, orderList: List<Order>)
 {
     val header = ConstrainedLayoutReference(id = "header")
     val caption = ConstrainedLayoutReference(id = "caption")
@@ -95,9 +93,9 @@ fun Cart(clist: List<Coffee>)
                     bottom.linkTo(checkOut.top, margin = 16.dp)
                 })
         {
-            items(clist.size){i ->
+            items(orderList.size){i ->
                 // Display coffee
-                DisplayCoffee(coffee = clist[i])
+                DisplayCoffee(ad, orderList[i])
             }
         }
 
@@ -126,7 +124,7 @@ fun Cart(clist: List<Coffee>)
                     )
                 )
                 Text(
-                    text = "$${totalPrice(clist)}",
+                    text = "$${totalPrice(orderList)}",
                     style = TextStyle(
                         fontSize = 22.sp,
                         fontWeight = FontWeight(600),
@@ -169,10 +167,3 @@ fun Cart(clist: List<Coffee>)
     }
 }
 
-@Preview
-@Composable
-fun CartPreview(){
-    MidtermProjectTheme {
-        Cart(List<Coffee>(1){Coffee(1, 1, false, false, Tristate.MEDIUM, Tristate.MEDIUM)})
-    }
-}

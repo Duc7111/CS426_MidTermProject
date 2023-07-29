@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -21,19 +22,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.midtermproject.ui.theme.MidtermProjectTheme
 
 
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier, username : String = "Guest", cnum : Int = 4)
+fun HomeScreen(ad: AsynchronousData ,username: String)
 {
+    var user = User()
+    var clist = List<Coffee>(0){Coffee()}
+
+    ad.getUser(username) { user = it }
+    ad.getAllCoffee { clist = it }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -60,7 +64,7 @@ fun HomeScreen(modifier: Modifier = Modifier, username : String = "Guest", cnum 
                         color = Color(0xFFD8D8D8),)
                 )
                 Text(
-                    text = username,
+                    text = user.name,
                     style = TextStyle(
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Medium,
@@ -102,7 +106,7 @@ fun HomeScreen(modifier: Modifier = Modifier, username : String = "Guest", cnum 
             }
         }
         //Loyalty card
-        LoyaltyCard(cnum = cnum)
+        LoyaltyCard(cnum = user.loyaltyPoint)
         // Coffee list
         Column (
             horizontalAlignment = Alignment.Start,
@@ -137,7 +141,7 @@ fun HomeScreen(modifier: Modifier = Modifier, username : String = "Guest", cnum 
                     .height(375.dp)
                     .padding(start = 24.dp, top = 24.dp, end = 24.dp, bottom = 0.dp))
             {
-                items(6) { index ->
+                items(clist) { coffee ->
                     Button(
                         onClick = {
                             //Go to detail
@@ -155,23 +159,24 @@ fun HomeScreen(modifier: Modifier = Modifier, username : String = "Guest", cnum 
                                 .fillMaxSize())
                         {
                             CoffeeImage(
-                                index = index + 1,
+                                coffee.drawableName,
                                 modifier = Modifier
                                     .width(114.dp)
                                     .height(85.dp))
-                            CoffeeText(index = index + 1)
+
+                            Text(
+                                text = coffee.name,
+                                style = TextStyle(
+                                    fontSize = 14.sp,
+                                    lineHeight = 20.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = Color.Black,
+                            )
+                            )
                         }
                     }
                 }
             }
         }
-    }
-}
-
-@Preview
-@Composable
-fun HomeScreenPreview() {
-    MidtermProjectTheme {
-        HomeScreen(Modifier)
     }
 }

@@ -19,23 +19,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-@Preview
 @Composable
-fun OdersPreview()
-{
-    Orders()
-}
-
-@Composable
-fun Orders()
+fun Orders(dao: DBDao, username: String)
 {
     var state by remember { mutableStateOf(0) }
     val header = "My Orders"
-    val titles = listOf<String>("On going", "History")
+    val titles = listOf("On going", "History")
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -83,20 +75,20 @@ fun Orders()
         }
         when(state)
         {
-            0 -> OnGoing()
-            1 -> History()
+            0 -> OnGoing(dao, username)
+            1 -> History(dao, username)
         }
     }
 }
 
 @Composable
-fun OnGoing()
+fun OnGoing(dao: DBDao, username: String)
 {
 
 }
 
 @Composable
-fun History()
+fun History(dao: DBDao, username: String)
 {
 
 }

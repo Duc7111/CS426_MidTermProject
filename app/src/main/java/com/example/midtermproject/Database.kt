@@ -10,28 +10,26 @@ import androidx.room.Insert
 import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.RoomDatabase
-import kotlin.reflect.KClass
-
+import androidx.room.Transaction
 
 @Entity
 data class User(
-    @PrimaryKey val username: String,
-    val password: String,
-    val name: String,
-    val phone: String,
-    val email: String,
-    val address: String,
-)
-{
-}
+    @PrimaryKey var username: String = "",
+    var password: String = "",
+    var name: String = "",
+    var phone: String = "",
+    var email: String = "",
+    var address: String = "",
 
+    var loyaltyPoint: Int = 0,
+    var point: Int = 0,
+)
 
 
 @Entity
 data class Coffee(
-    @PrimaryKey val name: String,
-    val drawableName: String,
-    val basePrice: Float
+    @PrimaryKey var name: String = "",
+    var drawableName: String = "",
 )
 
 
@@ -50,16 +48,16 @@ data class Coffee(
 ]
 )
 data class Order(
-    @PrimaryKey val orderID: Int,
-    val username: String,
-    val coffeeName: String,
-    val state: Tristate, // in cart, on going, done (history)
+    @PrimaryKey var orderID: Int,
+    var username: String,
+    var coffeeName: String,
+    var state: Tristate = Tristate.SMALL, // in cart, on going, done (history)
 
-    val quantity: Int,
-    val shot: Boolean,
-    val select: Boolean,
-    val size: Tristate,
-    val ice: Tristate,
+    var quantity: Int = 1,
+    var shot: Boolean = false,
+    var select: Boolean = false,
+    var size: Tristate = Tristate.SMALL,
+    var ice: Tristate = Tristate.SMALL,
 )
 {
     fun calCost() : Float
@@ -82,7 +80,7 @@ data class Order(
 }
 
 @Dao
-interface dbDao {
+interface DBDao {
     //User Query
     @Query(
         "select * from User where userName = :userName"
@@ -90,6 +88,22 @@ interface dbDao {
 
     @Insert
     fun newUser(user: User)
+
+    @Query(
+        "update User set name = :name, phone = :phone, email = :email, address = :address where username = :username"
+    ) fun updateUser(username: String, name: String, phone: String, email: String, address: String)
+
+    @Query(
+        "update User set loyaltyPoint = loyaltyPoint + 1, point = point + $pts where username = :username"
+    ) fun gift(username: String)
+
+    @Query(
+        "update User set point = point - $redeemPts where username = :username"
+    ) fun redeem(username: String)
+
+    @Query(
+        "update User set point = point + 100, loyaltyPoint = 0 where username = :username"
+    ) fun loyaltyGift(username: String)
 
     //Coffee Query
     @Query(
@@ -104,11 +118,37 @@ interface dbDao {
     @Query(
         "select * from `order` where username = :username and state = :state"
     ) fun getOrders(username: String, state: Tristate): List<Order>
+
+    @Query(
+        "select max(orderID) + 1 from `order`"
+    ) fun newOrderID() : Int
+
+    @Insert
+    fun newOrder(order: Order)
+
+    @Query(
+        "update `order` set state = :state where orderID = :orderID"
+    ) fun updateOrder(orderID: Int, state: Tristate)
+
+    //Transactions
+    @Transaction
+    fun  buyCoffee(order: Order)
+    {
+        newOrder(order)
+        gift(order.username)
+    }
+
+    @Transaction
+    fun redeem(order: Order)
+    {
+        newOrder(order)
+        redeem(order.username)
+    }
 }
 
 @Database(entities = [User::class, Coffee::class, Order::class], version = 1)
 abstract class Database: RoomDatabase() {
-    abstract fun databaseDao() : dbDao
+    abstract fun databaseDao() : DBDao
 }
 
 
