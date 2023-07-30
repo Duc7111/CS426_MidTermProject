@@ -35,13 +35,8 @@ import androidx.compose.ui.unit.sp
 const val redeemPts = 1350
 
 @Composable
-fun Redeem(ad: AsynchronousData, username: String)
+fun Redeem(coffeeList: List<Coffee>, user: User, onStateChange: (Int) -> Unit, onRedeem: (Order) -> Unit)
 {
-    var coffeeList by remember { mutableStateOf(List<Coffee>(0){Coffee()}) }
-    ad.getAllCoffee()
-    {
-        coffeeList = it
-    }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top,
@@ -70,7 +65,9 @@ fun Redeem(ad: AsynchronousData, username: String)
                 modifier = Modifier
                     .width(24.dp)
                     .height(24.dp)
-                    .clickable { })
+                    .clickable {
+                        onStateChange(1)
+                    })
         }
         LazyColumn(
             verticalArrangement = Arrangement.Top,
@@ -103,10 +100,12 @@ fun Redeem(ad: AsynchronousData, username: String)
 
                     Button(
                         onClick ={
-
+                            onRedeem(Order(username = user.username, coffeeName = coffee.name, quantity = 0))
+                            onStateChange(2)
                         },
                         shape = RoundedCornerShape(size = 50.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF324A59)),
+                        enabled = user.point >= redeemPts,
                         modifier = Modifier
                             .width(76.dp)
                             .height(32.dp)

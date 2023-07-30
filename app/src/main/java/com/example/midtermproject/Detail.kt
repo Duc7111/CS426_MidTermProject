@@ -37,13 +37,19 @@ import androidx.compose.ui.unit.sp
 
 
 @Composable
-fun DetailScreen(dao: DBDao, username: String, coffee: Coffee)
+fun DetailScreen(coffee: Coffee, order: Order, onOrderChange: (Order) -> Unit, onStateChange: (Int) -> Unit)
 {
-    var quantity by remember { mutableStateOf(1) }
-    var shot by remember { mutableStateOf(false) }
-    var select by remember { mutableStateOf(false) }
-    var size by remember { mutableStateOf(Tristate.SMALL) }
-    var ice by remember { mutableStateOf(Tristate.SMALL) }
+    var quantity by remember { mutableStateOf(order.quantity) }
+    var shot by remember { mutableStateOf(order.shot) }
+    var select by remember { mutableStateOf(order.select) }
+    var size by remember { mutableStateOf(order.size) }
+    var ice by remember { mutableStateOf(order.ice) }
+
+    order.quantity = quantity
+    order.shot = shot
+    order.select = select
+    order.size = size
+    order.ice = ice
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -63,7 +69,8 @@ fun DetailScreen(dao: DBDao, username: String, coffee: Coffee)
         {
             // Back button
             Button(
-                onClick = { //To Profile
+                onClick = {
+                    onStateChange(0)
                 },
                 shape = CircleShape,
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent))
@@ -87,7 +94,9 @@ fun DetailScreen(dao: DBDao, username: String, coffee: Coffee)
 
             // Cart button
             Button(
-                onClick = { //To Cart
+                onClick = {
+                    onOrderChange(order)
+                    onStateChange(4)
                 },
                 shape = CircleShape,
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent))
@@ -474,11 +483,6 @@ fun DetailScreen(dao: DBDao, username: String, coffee: Coffee)
                 }
             }
         }
-        val order = Order(
-            orderID = 0,
-            username = username,
-            coffeeName = coffee.name,)
-
         // Check
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -507,7 +511,8 @@ fun DetailScreen(dao: DBDao, username: String, coffee: Coffee)
 
         Button(
             onClick = {
-
+                onOrderChange(order)
+                onStateChange(4)
             },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF324A59)),
             modifier = Modifier

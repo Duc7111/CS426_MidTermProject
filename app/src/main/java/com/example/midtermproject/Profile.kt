@@ -35,15 +35,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun Profile(ad: AsynchronousData,username: String)
+fun Profile(ad: AsynchronousData, user : User, onStateChange: (Int) -> Unit)
 {
-    var user by remember { mutableStateOf(User()) }
-    ad.getUser(username) { user = it }
-    var name =  user.name
-    var phone = user.phone
-    var email = user.email
-    var address = user.address
-
     Column(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment =  Alignment.CenterHorizontally,
@@ -65,28 +58,28 @@ fun Profile(ad: AsynchronousData,username: String)
 
         ProfileRow(rowName = "Full name", string = user.name)
         {
-            name = it
+            user.name = it
         }
 
         ProfileRow(rowName = "Phone", string = user.phone)
         {
-            phone = it
+            user.phone = it
         }
 
         ProfileRow(rowName = "Email", string = user.email)
         {
-            email = it
+            user.email = it
         }
 
         ProfileRow(rowName = "address", string = user.address)
         {
-            address = it
+            user.address = it
         }
 
         Button(
             onClick = {
-                ad.updateUser(username, name, phone, email, address)
-                return@Button
+                ad.updateUser(user.username, user.name, user.phone, user.email, user.address)
+                onStateChange(0)
             },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF324A59)),
             shape = RoundedCornerShape(size = 30.dp),
@@ -129,7 +122,7 @@ fun ProfileRow(rowName: String, string: String, onTextChange : (String) -> Unit)
 
         var edit by remember{ mutableStateOf(false) }
         var edited by remember{ mutableStateOf(false) }
-        var str by rememberSaveable{ mutableStateOf(string) }
+        var str by remember{ mutableStateOf(string) }
 
         TextField(
             value = str,

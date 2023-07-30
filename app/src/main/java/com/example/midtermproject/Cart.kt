@@ -17,6 +17,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,16 +35,13 @@ import androidx.constraintlayout.compose.ConstrainedLayoutReference
 import androidx.constraintlayout.compose.ConstraintLayout
 
 @Composable
-fun Cart(ad: AsynchronousData, orderList: List<Order>)
+fun Cart(ad: AsynchronousData, username: String, orderList: List<Order>, prev: Int, onBack: (Int) -> Unit, onCheckOut: () -> Unit)
 {
-    val header = ConstrainedLayoutReference(id = "header")
-    val caption = ConstrainedLayoutReference(id = "caption")
-    val list = ConstrainedLayoutReference(id = "list")
-    val checkOut = ConstrainedLayoutReference(id = "check_out")
 
-    ConstraintLayout(
+    Column(
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .layoutId("cart_main")
             .fillMaxSize()
     )
     {
@@ -49,13 +50,11 @@ fun Cart(ad: AsynchronousData, orderList: List<Order>)
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
             modifier = Modifier
-                .fillMaxWidth()
-                .constrainAs(header) {
-                    top.linkTo(parent.top, margin = 16.dp)
-                })
+                .fillMaxWidth())
         {
             Button(
-                onClick = { //To Profile
+                onClick = {
+                    onBack(prev)
                 },
                 shape = CircleShape,
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent))
@@ -79,19 +78,13 @@ fun Cart(ad: AsynchronousData, orderList: List<Order>)
                 textAlign = TextAlign.Start,),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp)
-                .constrainAs(caption) {
-                    top.linkTo(header.bottom)
-                })
+                .padding(10.dp))
 
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(24.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .constrainAs(list) {
-                    top.linkTo(caption.bottom)
-                    bottom.linkTo(checkOut.top, margin = 16.dp)
-                })
+                .height(500.dp))
         {
             items(orderList.size){i ->
                 // Display coffee
@@ -105,9 +98,7 @@ fun Cart(ad: AsynchronousData, orderList: List<Order>)
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
-                .constrainAs(checkOut) {
-                    bottom.linkTo(parent.bottom, margin = 16.dp)
-                }
+
         )
         {
             Column(
@@ -135,7 +126,7 @@ fun Cart(ad: AsynchronousData, orderList: List<Order>)
 
             Button(
                 onClick = {
-
+                    onCheckOut()
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF324A59)),
                 modifier = Modifier

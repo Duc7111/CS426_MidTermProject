@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.sp
 import com.example.midtermproject.ui.theme.MidtermProjectTheme
 
 @Composable
-fun OrderSuccess()
+fun OrderSuccess(onStateChange: (Int) -> Unit)
 {
     Column (
         verticalArrangement = Arrangement.SpaceBetween,
@@ -68,7 +68,7 @@ fun OrderSuccess()
 
         Button(
             onClick = {
-
+                onStateChange(2)
             },
             modifier = Modifier
                 .width(315.75375.dp)
@@ -87,14 +87,5 @@ fun OrderSuccess()
                     textAlign = TextAlign.Center,)
             )
         }
-    }
-}
-
-@Preview
-@Composable
-fun OrderSuccessPreview()
-{
-    MidtermProjectTheme {
-        OrderSuccess()
     }
 }

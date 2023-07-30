@@ -19,6 +19,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,14 +34,8 @@ import androidx.compose.ui.unit.sp
 
 
 @Composable
-fun HomeScreen(ad: AsynchronousData ,username: String)
+fun HomeScreen(ad: AsynchronousData, user: User, clist: List<Coffee>, onStateChange: (Int) -> Unit, onOrder: (o: Order,i: Int) -> Unit, onLoyaltyGain: () -> Unit)
 {
-    var user = User()
-    var clist = List<Coffee>(0){Coffee()}
-
-    ad.getUser(username) { user = it }
-    ad.getAllCoffee { clist = it }
-
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -76,7 +74,7 @@ fun HomeScreen(ad: AsynchronousData ,username: String)
                 // Cart button
                 Button(
                     onClick = {
-                        //To Cart
+                        onStateChange(4)
                     },
                     shape = CircleShape,
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent))
@@ -91,7 +89,7 @@ fun HomeScreen(ad: AsynchronousData ,username: String)
                 // Profile button
                 Button(
                     onClick = {
-                        //To Profile
+                        onStateChange(3)
                     },
                     shape = CircleShape,
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent))
@@ -106,7 +104,7 @@ fun HomeScreen(ad: AsynchronousData ,username: String)
             }
         }
         //Loyalty card
-        LoyaltyCard(cnum = user.loyaltyPoint)
+        LoyaltyCard(cnum = user.loyaltyPoint, onLoyaltyGain)
         // Coffee list
         Column (
             horizontalAlignment = Alignment.Start,
@@ -141,10 +139,11 @@ fun HomeScreen(ad: AsynchronousData ,username: String)
                     .height(375.dp)
                     .padding(start = 24.dp, top = 24.dp, end = 24.dp, bottom = 0.dp))
             {
-                items(clist) { coffee ->
+                items(clist.size) { i ->
                     Button(
                         onClick = {
-                            //Go to detail
+                            onOrder (Order(username = user.username, coffeeName =  clist[i].name), i)
+                            onStateChange(5)
                         },
                         shape = RoundedCornerShape(15.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF7F8FB)),
@@ -159,20 +158,18 @@ fun HomeScreen(ad: AsynchronousData ,username: String)
                                 .fillMaxSize())
                         {
                             CoffeeImage(
-                                coffee.drawableName,
+                                clist[i].drawableName,
                                 modifier = Modifier
                                     .width(114.dp)
                                     .height(85.dp))
 
                             Text(
-                                text = coffee.name,
+                                text = clist[i].name,
                                 style = TextStyle(
                                     fontSize = 14.sp,
                                     lineHeight = 20.sp,
                                     fontWeight = FontWeight.Medium,
-                                    color = Color.Black,
-                            )
-                            )
+                                    color = Color.Black,))
                         }
                     }
                 }

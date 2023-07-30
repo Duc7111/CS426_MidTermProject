@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -51,17 +52,7 @@ fun totalPrice(orderList: List<Order>): Float {
 @Composable
 fun DisplayCoffee(ad: AsynchronousData, order : Order)
 {
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        userScrollEnabled = false,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(100.dp)
 
-    )
-    {
-        item()
-        {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceEvenly,
@@ -82,7 +73,7 @@ fun DisplayCoffee(ad: AsynchronousData, order : Order)
                 Column(
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.Center,
-                    modifier = Modifier.fillParentMaxHeight())
+                    modifier = Modifier.fillMaxHeight())
                 {
                     Text(
                         text = coffee.name,
@@ -101,7 +92,7 @@ fun DisplayCoffee(ad: AsynchronousData, order : Order)
                     )
 
                     Text(
-                        text = "x ${order.quantity}",
+                        text = if(order.quantity > 0) "x ${order.quantity}" else "Redeem",
                         style = TextStyle(
                             fontSize = 12.sp,
                             fontWeight = FontWeight(600),
@@ -118,27 +109,5 @@ fun DisplayCoffee(ad: AsynchronousData, order : Order)
                     )
                 )
             }
-
-            Button(
-                onClick = {
-
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFE5E5)),
-                shape = RoundedCornerShape(size = 15.dp),
-                modifier = Modifier
-                    .height(96.dp)
-            )
-            {
-                Image(
-                    painter = painterResource(id = R.drawable.delete),
-                    contentDescription = "Delete",
-                    modifier = Modifier
-                        .padding(1.dp)
-                        .width(24.dp)
-                        .height(24.dp)
-                )
-            }
-        }
-    }
-}
+         }
 

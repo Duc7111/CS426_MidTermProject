@@ -1,5 +1,6 @@
 package com.example.midtermproject
 
+import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.room.Dao
@@ -9,8 +10,10 @@ import androidx.room.ForeignKey
 import androidx.room.Insert
 import androidx.room.PrimaryKey
 import androidx.room.Query
+import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.Transaction
+import kotlinx.coroutines.flow.Flow
 
 @Entity
 data class User(
@@ -48,7 +51,7 @@ data class Coffee(
 ]
 )
 data class Order(
-    @PrimaryKey var orderID: Int,
+    @PrimaryKey var orderID: Int = 0,
     var username: String,
     var coffeeName: String,
     var state: Tristate = Tristate.SMALL, // in cart, on going, done (history)
@@ -84,7 +87,7 @@ interface DBDao {
     //User Query
     @Query(
         "select * from User where userName = :userName"
-    ) fun getUser(userName: String): User
+    ) fun getUser(userName: String): Flow<User?>
 
     @Insert
     fun newUser(user: User)
@@ -108,23 +111,43 @@ interface DBDao {
     //Coffee Query
     @Query(
         "select * from Coffee"
-    ) fun getAllCoffee(): List<Coffee>
+    ) fun getAllCoffee(): Flow<List<Coffee>>
 
     @Query(
         "select * from Coffee where name = :name"
-    ) fun getCoffee(name: String): Coffee
+    ) fun getCoffee(name: String): Flow<Coffee?>
+
+    @Query(
+        "insert into Coffee values " +
+                "('Americano', 'coffee_1')," +
+                "('Cappuccino', 'coffee_2')," +
+                "('Mocha', 'coffee_3')," +
+                "('Flat White', 'coffee_4')," +
+                "('New Coming', 'coffee_icon_0')," +
+                "('Coming soon', 'coffee_icon_0')"
+    ) fun initCoffee()
 
     //Order Query
     @Query(
         "select * from `order` where username = :username and state = :state"
-    ) fun getOrders(username: String, state: Tristate): List<Order>
+    ) fun getOrders(username: String, state: Tristate): Flow<List<Order>>
 
     @Query(
         "select max(orderID) + 1 from `order`"
     ) fun newOrderID() : Int
 
-    @Insert
-    fun newOrder(order: Order)
+    @Query(
+        "insert into 'order' values (:orderID, :username, :coffeeName, :state, :quantity, :shot, :select, :size, :ice)"
+    )
+    fun newOrder(orderID: Int = 0,
+                 username: String,
+                 coffeeName: String,
+                 state: Tristate,
+                 quantity: Int,
+                 shot: Boolean,
+                 select: Boolean,
+                 size: Tristate,
+                 ice: Tristate,)
 
     @Query(
         "update `order` set state = :state where orderID = :orderID"
@@ -134,21 +157,43 @@ interface DBDao {
     @Transaction
     fun  buyCoffee(order: Order)
     {
-        newOrder(order)
+        insertOrder(order)
         gift(order.username)
     }
 
     @Transaction
     fun redeem(order: Order)
     {
-        newOrder(order)
+        insertOrder(order)
         redeem(order.username)
+    }
+
+
+    fun insertOrder(order: Order)
+    {
+        order.orderID = newOrderID()
+        newOrder(order.orderID, order.username, order.coffeeName, order.state, order.quantity, order.shot, order.select, order.size, order.ice)
     }
 }
 
 @Database(entities = [User::class, Coffee::class, Order::class], version = 1)
-abstract class Database: RoomDatabase() {
+abstract class AppDatabase: RoomDatabase() {
     abstract fun databaseDao() : DBDao
+    companion object {
+        @Volatile
+        private var INSTANCE: AppDatabase? = null
+        fun getDatabase(context: Context): AppDatabase {
+            return INSTANCE ?: synchronized(this) {
+                val instance = Room.databaseBuilder(
+                    context,
+                    AppDatabase::class.java,
+                    "app_database")
+                    .build()
+                INSTANCE = instance
+                instance
+            }
+        }
+    }
 }
 
 

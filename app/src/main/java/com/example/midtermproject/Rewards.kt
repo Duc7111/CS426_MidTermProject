@@ -2,6 +2,7 @@ package com.example.midtermproject
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,25 +32,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-
 const val pts : Int = 12
 
 @Composable
-fun Rewards(ad: AsynchronousData, username: String)
+fun Rewards(user: User, history: List<Order>, onStateChange: (Int) -> Unit, onLoyaltyGain: () -> Unit)
 {
-    var user by remember { mutableStateOf(User()) }
-    ad.getUser(username) { user = it }
-    var orderList by remember { mutableStateOf(List<Order>(0){Order(0, "", "")}) }
-    ad.getOrders(username, Tristate.MEDIUM, Tristate.LARGE)
-    {
-        orderList = it
-    }
     var point by remember {
         mutableStateOf(user.point)
     }
+    var loyaltyPoint by remember {
+        mutableStateOf(user.loyaltyPoint)
+    }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween,
+        verticalArrangement = Arrangement.Top,
         modifier = Modifier
             .fillMaxSize())
     {
@@ -73,7 +69,12 @@ fun Rewards(ad: AsynchronousData, username: String)
                     .width(68.dp)
                     .height(24.dp))
         }
-        LoyaltyCard(user.loyaltyPoint)
+        LoyaltyCard(loyaltyPoint)
+        {
+            loyaltyPoint -= 8
+            point += 100
+            onLoyaltyGain()
+        }
         //Point
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -99,7 +100,7 @@ fun Rewards(ad: AsynchronousData, username: String)
                     modifier = Modifier)
 
                 Text(
-                    text = "${user.point}",
+                    text = "$point",
                     style = TextStyle(
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Medium,
@@ -109,7 +110,7 @@ fun Rewards(ad: AsynchronousData, username: String)
 
             Button(
                 onClick = {
-
+                    onStateChange(7)
                 },
                 shape = RoundedCornerShape(10.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFA2CDE9),),
@@ -122,7 +123,7 @@ fun Rewards(ad: AsynchronousData, username: String)
                     style = TextStyle(
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Medium,
-                        color = Color(0xFFD8D8D8),
+                        color = Color(0xFF9AA0C4),
                     )
                 )
             }
@@ -149,9 +150,11 @@ fun Rewards(ad: AsynchronousData, username: String)
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(10.dp),
             modifier = Modifier
-                .fillMaxSize())
+                .fillMaxWidth()
+                .height(250.dp)
+                .padding(20.dp))
         {
-            items(orderList)
+            items(history)
             {order ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -167,7 +170,7 @@ fun Rewards(ad: AsynchronousData, username: String)
                             color = Color(0xFF324A59),))
 
                     Text(
-                        text = "+ $pts Pts",
+                        text = "+ ${pts*order.quantity} Pts",
                         style = TextStyle(
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Medium,
@@ -182,7 +185,7 @@ fun Rewards(ad: AsynchronousData, username: String)
 }
 
 @Composable
-fun LoyaltyCard(cnum: Int)
+fun LoyaltyCard(cnum: Int, onClick: () -> Unit)
 {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -190,7 +193,8 @@ fun LoyaltyCard(cnum: Int)
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp, vertical = 10.dp)
-            .background(color = Color(0xFF324A59), shape = RoundedCornerShape(12.dp)))
+            .background(color = Color(0xFF324A59), shape = RoundedCornerShape(12.dp))
+            .clickable(enabled = cnum >= 8) { onClick() })
     {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,

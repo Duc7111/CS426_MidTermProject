@@ -3,6 +3,9 @@ package com.example.midtermproject
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.launch
 
 class AsynchronousData(
@@ -12,15 +15,21 @@ class AsynchronousData(
     //User
     fun getUser(username: String, codeUser: (User) -> Unit)
     {
-        viewModelScope.launch(Dispatchers.IO)
+        viewModelScope.launch(Dispatchers.Main)
         {
-            codeUser(dao.getUser(username))
+            dao.getUser(username).collect()
+            {
+                if (it != null) {
+                    codeUser(it)
+                }
+                else codeUser(User())
+            }
         }
     }
 
     fun newUser(user: User)
     {
-        viewModelScope.launch(Dispatchers.IO)
+        viewModelScope.launch(Dispatchers.Default)
         {
             dao.newUser(user)
         }
@@ -28,7 +37,7 @@ class AsynchronousData(
 
     fun updateUser(username: String, name: String, phone: String, email: String, address: String)
     {
-        viewModelScope.launch(Dispatchers.IO)
+        viewModelScope.launch(Dispatchers.Default)
         {
             dao.updateUser(username, name, phone, email, address)
         }
@@ -36,7 +45,7 @@ class AsynchronousData(
 
     fun loyaltyGift(username: String)
     {
-        viewModelScope.launch(Dispatchers.IO)
+        viewModelScope.launch(Dispatchers.Default)
         {
             dao.loyaltyGift(username)
         }
@@ -45,28 +54,46 @@ class AsynchronousData(
     //Coffee
     fun getAllCoffee(codeCoffees: (List<Coffee>) -> Unit)
     {
-        viewModelScope.launch(Dispatchers.IO)
+        viewModelScope.launch(Dispatchers.Main)
         {
-            codeCoffees(dao.getAllCoffee())
+            dao.getAllCoffee().collect()
+            {
+                codeCoffees(it)
+            }
         }
     }
     fun getCoffee(name: String, codeCoffee: (Coffee) -> Unit)
     {
-        viewModelScope.launch(Dispatchers.IO)
+        viewModelScope.launch(Dispatchers.Main)
         {
-            codeCoffee(dao.getCoffee(name))
+            dao.getCoffee(name).collect()
+            {
+                if(it != null) codeCoffee(it)
+                else codeCoffee(Coffee())
+            }
+        }
+    }
+
+    fun initCoffee()
+    {
+        viewModelScope.launch(Dispatchers.Default)
+        {
+            dao.initCoffee()
         }
     }
 
     //Order
     fun getOrders(username: String, vararg states: Tristate, codeOrders: (List<Order>) -> Unit)
     {
-        viewModelScope.launch(Dispatchers.IO)
+        viewModelScope.launch(Dispatchers.Main)
         {
-            val list: MutableList<Order> = List<Order>(0){ Order(0, "", "") }.toMutableList()
+            val list: MutableList<Order> = emptyList<Order>().toMutableList()
             for(state in states)
             {
-                list += dao.getOrders(username, state)
+                dao.getOrders(username, state).collect()
+                {
+                    list += it
+                }
             }
             codeOrders(list)
         }
@@ -74,7 +101,7 @@ class AsynchronousData(
 
     fun newOrderID(getID: (Int) -> Unit)
     {
-        viewModelScope.launch(Dispatchers.IO)
+        viewModelScope.launch(Dispatchers.Default)
         {
             getID(dao.newOrderID())
         }
@@ -82,7 +109,7 @@ class AsynchronousData(
 
     fun updateOrder(orderID: Int, state: Tristate)
     {
-        viewModelScope.launch(Dispatchers.IO)
+        viewModelScope.launch(Dispatchers.Default)
         {
             dao.updateOrder(orderID, state)
         }
@@ -91,7 +118,7 @@ class AsynchronousData(
     //Transaction
     fun  buyCoffee(order: Order)
     {
-        viewModelScope.launch(Dispatchers.IO)
+        viewModelScope.launch(Dispatchers.Default)
         {
             dao.buyCoffee(order)
         }
@@ -99,9 +126,17 @@ class AsynchronousData(
 
     fun redeem(order: Order)
     {
-        viewModelScope.launch(Dispatchers.IO)
+        viewModelScope.launch(Dispatchers.Default)
         {
             dao.redeem(order)
+        }
+    }
+
+    fun insertOrder(order: Order)
+    {
+        viewModelScope.launch(Dispatchers.Default)
+        {
+            dao.insertOrder(order)
         }
     }
 }
